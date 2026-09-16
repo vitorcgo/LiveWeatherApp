@@ -9,6 +9,7 @@ import loadingGif from '../assets/images/loading.gif'
 const WheatherApp = () => {
 
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
 
     const [location, setLocation] = useState('')
     const [data, setData] = useState(null)
@@ -27,15 +28,19 @@ const WheatherApp = () => {
         const normalizedCity = city.trim()
 
         if (!normalizedCity) {
+            setError('Enter a city name')
             return
         }
 
         try {
             setLoading(true)
+            setError('')
 
             const coordinates = await getCoordinates(normalizedCity)
 
             if (!coordinates) {
+                setError('City not found')
+                setData(null)
                 return
             }
 
@@ -53,8 +58,12 @@ const WheatherApp = () => {
                 weatherCode: currentWeather.weather_code,
                 time: currentWeather.time
             })
-        } catch (error) {
-            console.error(error)
+
+            setLocation('')
+        } catch (err) {
+            console.error(err)
+            setError('Unable to load weather data')
+            setData(null)
         } finally {
             setLoading(false)
         }
@@ -159,6 +168,12 @@ const WheatherApp = () => {
                     </div>
                 </div>
 
+                {error && (
+                    <div className="not-found">
+                        {error}
+                    </div>
+                )}
+
                 {loading ? (
                     <img
                         className="loader"
@@ -167,6 +182,10 @@ const WheatherApp = () => {
                     />
                 ) : (
                     <>
+
+
+
+
                         <div className="weather">
                             <img
                                 src={weatherImage}
