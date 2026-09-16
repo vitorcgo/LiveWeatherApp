@@ -1,13 +1,11 @@
-import { useState } from 'react'
-import './App.css'
+import WheatherApp from './components/WheatherApp'
+import './components/WheatherApp.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
   return (
-    <>
-      
-    </>
+    <div>
+      <WheatherApp />
+    </div>
   )
 }
 
