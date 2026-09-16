@@ -4,10 +4,14 @@ import sunny from '../assets/images/sunny.png'
 import cloudy from '../assets/images/cloudy.png'
 import rainy from '../assets/images/rainy.png'
 import snowy from '../assets/images/snowy.png'
+import loadingGif from '../assets/images/loading.gif'
 
 const WheatherApp = () => {
 
+    const [loading, setLoading] = useState(false)
+
     const [location, setLocation] = useState('')
+    const [data, setData] = useState(null)
 
     const handleInputChanges = (e) => {
         setLocation(e.target.value)
@@ -27,10 +31,11 @@ const WheatherApp = () => {
         }
 
         try {
+            setLoading(true)
+
             const coordinates = await getCoordinates(normalizedCity)
 
             if (!coordinates) {
-                console.log('City not found')
                 return
             }
 
@@ -50,10 +55,32 @@ const WheatherApp = () => {
             })
         } catch (error) {
             console.error(error)
+        } finally {
+            setLoading(false)
         }
     }
 
 
+
+    const getCoordinates = async (city) => {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`
+
+        const response = await fetch(url)
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch coordinates')
+        }
+
+        const result = await response.json()
+
+        if (!result.results || result.results.length === 0) {
+            return null
+        }
+
+        const { latitude, longitude, name, country } = result.results[0]
+
+        return { latitude, longitude, name, country }
+    }
 
     const getWeather = async (latitude, longitude) => {
         const currentFields = [
@@ -132,41 +159,51 @@ const WheatherApp = () => {
                     </div>
                 </div>
 
-                <div className="weather">
+                {loading ? (
                     <img
-                        src={weatherImage}
-                        alt={weatherInfo?.description || 'Weather'}
+                        className="loader"
+                        src={loadingGif}
+                        alt="Loading"
                     />
-                    <div className="weather-type">
-                        {weatherInfo ? weatherInfo.description : '--'}
-                    </div>
+                ) : (
+                    <>
+                        <div className="weather">
+                            <img
+                                src={weatherImage}
+                                alt={weatherInfo?.description || 'Weather'}
+                            />
+                            <div className="weather-type">
+                                {weatherInfo ? weatherInfo.description : '--'}
+                            </div>
 
-                    <div className="temp">
-                        {data ? `${Math.round(data.temperature)}°` : '--'}
-                    </div>
-                </div>
-
-                <div className="weather-date">
-                    <p>{data ? formatDate(data.time) : ''}</p>
-                </div>
-
-                <div className="weather-data">
-                    <div className="humidity">
-                        <div className="data-name">Humidity</div>
-                        <i className="fa-solid fa-droplet"></i>
-                        <div className="data">
-                            {data ? `${data.humidity}%` : '--'}
+                            <div className="temp">
+                                {data ? `${Math.round(data.temperature)}°` : '--'}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="wind">
-                        <div className="data-name">Wind</div>
-                        <i className="fa-solid fa-wind"></i>
-                        <div className="data">
-                            {data ? `${data.windSpeed} km/h` : '--'}
+                        <div className="weather-date">
+                            <p>{data ? formatDate(data.time) : ''}</p>
                         </div>
-                    </div>
-                </div>
+
+                        <div className="weather-data">
+                            <div className="humidity">
+                                <div className="data-name">Humidity</div>
+                                <i className="fa-solid fa-droplet"></i>
+                                <div className="data">
+                                    {data ? `${data.humidity}%` : '--'}
+                                </div>
+                            </div>
+
+                            <div className="wind">
+                                <div className="data-name">Wind</div>
+                                <i className="fa-solid fa-wind"></i>
+                                <div className="data">
+                                    {data ? `${data.windSpeed} km/h` : '--'}
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     )
