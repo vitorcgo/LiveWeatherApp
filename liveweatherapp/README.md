@@ -1,16 +1,88 @@
-# React + Vite
+<p align="center">
+  <img src="src/assets/images/sunny.png" alt="LiveWeatherApp logo" width="96" />
+</p>
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<h1 align="center">LiveWeatherApp</h1>
 
-Currently, two official plugins are available:
+Projeto universitário desenvolvido em **React + JavaScript** com o objetivo de praticar o consumo de APIs REST no front-end. A aplicação permite pesquisar uma cidade e exibir a previsão do tempo atual, usando geocodificação para converter o nome da cidade em coordenadas e, em seguida, buscar os dados climáticos correspondentes.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Screenshots
 
-## React Compiler
+| Resultado da busca | Carregando | Cidade não encontrada |
+| --- | --- | --- |
+| ![Resultado da busca exibindo o clima de São Paulo](docs/screenshots/weather-result.png) | ![Estado de carregamento durante a busca](docs/screenshots/loading-state.png) | ![Mensagem de erro para cidade não encontrada](docs/screenshots/city-not-found.png) |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Funcionalidades
 
-## Expanding the ESLint configuration
+- Busca de clima por nome de cidade (via clique no ícone de lupa ou tecla Enter)
+- Exibição de temperatura, umidade, velocidade do vento e descrição do clima
+- Ícone dinâmico de acordo com a condição climática (ensolarado, nublado, chuvoso, nevando)
+- Data formatada em português (`pt-BR`)
+- Estado de carregamento (loading) durante a requisição
+- Tratamento de erros: cidade não encontrada e falhas na requisição
+- Campo de busca controlado, com limpeza automática após uma pesquisa bem-sucedida
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Tecnologias
+
+- [React](https://react.dev/) 19
+- [Vite](https://vitejs.dev/) 8
+- JavaScript (ES2020+)
+- [Open-Meteo API](https://open-meteo.com/) (Geocoding API + Forecast API)
+- Font Awesome (ícones)
+
+## Arquitetura do projeto
+
+O projeto segue uma arquitetura modular, separando responsabilidades entre componentes de apresentação, serviços de API e utilitários:
+
+```
+src/
+├── assets/
+│   └── images/          # Ícones de clima e gif de loading
+│
+├── components/
+│   ├── SearchBar.jsx      # Campo de busca e cidade atual
+│   ├── WeatherCard.jsx    # Ícone, descrição e temperatura
+│   ├── WeatherDetails.jsx # Umidade e vento
+│   ├── WheatherApp.jsx    # Estado, handlers e orquestração da busca
+│   └── WheatherApp.css
+│
+├── services/
+│   └── weatherService.js  # Comunicação com a API Open-Meteo
+│
+├── utils/
+│   ├── formatDate.js      # Formatação de data em pt-BR
+│   └── weatherCode.js     # Mapeamento dos códigos WMO para ícone/descrição
+│
+├── App.jsx
+└── main.jsx
+```
+
+## Como executar
+
+Pré-requisitos: [Node.js](https://nodejs.org/) instalado.
+
+```bash
+# instalar as dependências
+npm install
+
+# rodar em modo desenvolvimento
+npm run dev
+
+# gerar build de produção
+npm run build
+
+# pré-visualizar o build de produção
+npm run preview
+
+# rodar o lint
+npm run lint
+```
+
+Após rodar `npm run dev`, acesse o endereço exibido no terminal (por padrão `http://localhost:5173`).
+
+## API utilizada
+
+A aplicação consome dois endpoints públicos da [Open-Meteo](https://open-meteo.com/), sem necessidade de chave de API:
+
+- **Geocoding API** (`https://geocoding-api.open-meteo.com/v1/search`): converte o nome da cidade digitada em latitude/longitude, nome oficial e país.
+- **Forecast API** (`https://api.open-meteo.com/v1/forecast`): retorna os dados climáticos atuais (temperatura, umidade, velocidade do vento e código do clima) para as coordenadas obtidas.
